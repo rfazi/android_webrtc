@@ -94,7 +94,6 @@ class EglBase10Impl implements EglBase10 {
     private final EGLDisplay eglDisplay;
     private final EGLConfig eglConfig;
     private final RefCountDelegate refCountDelegate;
-    private EGLSurface currentSurface = EGL10.EGL_NO_SURFACE;
 
     public EglConnection(EGLContext sharedContext, int[] configAttributes) {
       egl = (EGL10) EGLContext.getEGL();
@@ -112,7 +111,6 @@ class EglBase10Impl implements EglBase10 {
         }
         egl.eglDestroyContext(eglDisplay, eglContext);
         egl.eglTerminate(eglDisplay);
-        currentSurface = EGL10.EGL_NO_SURFACE;
       });
     }
 
@@ -153,31 +151,6 @@ class EglBase10Impl implements EglBase10 {
     @Override
     public EGLConfig getConfig() {
       return eglConfig;
-    }
-
-    public void makeCurrent(EGLSurface eglSurface) {
-      if (egl.eglGetCurrentContext() == eglContext && currentSurface == eglSurface) {
-        return;
-      }
-
-      synchronized (EglBase.lock) {
-        if (!egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-          throw new GLException(egl.eglGetError(),
-              "eglMakeCurrent failed: 0x" + Integer.toHexString(egl.eglGetError()));
-        }
-      }
-      currentSurface = eglSurface;
-    }
-
-    public void detachCurrent() {
-      synchronized (EglBase.lock) {
-        if (!egl.eglMakeCurrent(
-                eglDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT)) {
-          throw new GLException(egl.eglGetError(),
-              "eglDetachCurrent failed: 0x" + Integer.toHexString(egl.eglGetError()));
-        }
-      }
-      currentSurface = EGL10.EGL_NO_SURFACE;
     }
   }
 
@@ -312,7 +285,7 @@ class EglBase10Impl implements EglBase10 {
   }
 
   @Override
-  public org.webrtc.EglBase.Context getEglBaseContext() {
+  public EglBase.Context getEglBaseContext() {
     return new Context(
         eglConnection.getEgl(), eglConnection.getContext(), eglConnection.getConfig());
   }
@@ -366,13 +339,27 @@ class EglBase10Impl implements EglBase10 {
     if (eglSurface == EGL10.EGL_NO_SURFACE) {
       throw new RuntimeException("No EGLSurface - can't make current");
     }
-    eglConnection.makeCurrent(eglSurface);
+    synchronized (EglBase.lock) {
+      EGL10 egl = eglConnection.getEgl();
+      if (!egl.eglMakeCurrent(
+              eglConnection.getDisplay(), eglSurface, eglSurface, eglConnection.getContext())) {
+        throw new GLException(egl.eglGetError(),
+            "eglMakeCurrent failed: 0x" + Integer.toHexString(egl.eglGetError()));
+      }
+    }
   }
 
   // Detach the current EGL context, so that it can be made current on another thread.
   @Override
   public void detachCurrent() {
-    eglConnection.detachCurrent();
+    synchronized (EglBase.lock) {
+      EGL10 egl = eglConnection.getEgl();
+      if (!egl.eglMakeCurrent(eglConnection.getDisplay(), EGL10.EGL_NO_SURFACE,
+              EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT)) {
+        throw new GLException(egl.eglGetError(),
+            "eglDetachCurrent failed: 0x" + Integer.toHexString(egl.eglGetError()));
+      }
+    }
   }
 
   @Override

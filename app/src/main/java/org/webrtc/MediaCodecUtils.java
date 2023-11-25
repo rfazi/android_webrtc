@@ -50,14 +50,14 @@ class MediaCodecUtils {
 
   // Color formats supported by hardware encoder - in order of preference.
   static final int[] ENCODER_COLOR_FORMATS = {
-      MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar,
-      MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
-      MediaCodecInfo.CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
+      CodecCapabilities.COLOR_FormatYUV420Planar,
+      CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
+      CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar,
       MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m};
 
   // Color formats supported by texture mode encoding - in order of preference.
   static final int[] TEXTURE_COLOR_FORMATS =
-      new int[] {MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface};
+      new int[] {CodecCapabilities.COLOR_FormatSurface};
 
   static @Nullable Integer selectColorFormat(
       int[] supportedColorFormats, CodecCapabilities capabilities) {
@@ -102,11 +102,11 @@ class MediaCodecUtils {
   }
 
   @TargetApi(29)
-  private static boolean isHardwareAcceleratedQOrHigher(android.media.MediaCodecInfo codecInfo) {
+  private static boolean isHardwareAcceleratedQOrHigher(MediaCodecInfo codecInfo) {
     return codecInfo.isHardwareAccelerated();
   }
 
-  static boolean isSoftwareOnly(android.media.MediaCodecInfo codecInfo) {
+  static boolean isSoftwareOnly(MediaCodecInfo codecInfo) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
       return isSoftwareOnlyQOrHigher(codecInfo);
     }
@@ -120,7 +120,7 @@ class MediaCodecUtils {
   }
 
   @TargetApi(29)
-  private static boolean isSoftwareOnlyQOrHigher(android.media.MediaCodecInfo codecInfo) {
+  private static boolean isSoftwareOnlyQOrHigher(MediaCodecInfo codecInfo) {
     return codecInfo.isSoftwareOnly();
   }
 

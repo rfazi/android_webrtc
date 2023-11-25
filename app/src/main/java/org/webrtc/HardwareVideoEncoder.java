@@ -292,7 +292,7 @@ class HardwareVideoEncoder implements VideoEncoder {
       updateInputFormat(codec.getInputFormat());
 
       codec.start();
-    } catch (IllegalArgumentException | IllegalStateException e) {
+    } catch (IllegalStateException e) {
       Logging.e(TAG, "initEncodeInternal failed", e);
       release();
       return VideoCodecStatus.FALLBACK_SOFTWARE;
@@ -780,10 +780,10 @@ class HardwareVideoEncoder implements VideoEncoder {
 
   protected boolean isSemiPlanar(int colorFormat) {
     switch (colorFormat) {
-      case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar:
+      case CodecCapabilities.COLOR_FormatYUV420Planar:
         return false;
-      case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
-      case MediaCodecInfo.CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar:
+      case CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
+      case CodecCapabilities.COLOR_QCOM_FormatYUV420SemiPlanar:
       case MediaCodecUtils.COLOR_QCOM_FORMATYUV420PackedSemiPlanar32m:
         return true;
       default:

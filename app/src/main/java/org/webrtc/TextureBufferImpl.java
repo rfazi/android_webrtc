@@ -83,7 +83,7 @@ public class TextureBufferImpl implements VideoFrame.TextureBuffer {
   }
 
   @Override
-  public VideoFrame.TextureBuffer.Type getType() {
+  public Type getType() {
     return type;
   }
 
