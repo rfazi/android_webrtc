@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "it.rfazi.webrtcexample"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "it.rfazi.webrtcexample"
